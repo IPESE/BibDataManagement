@@ -1,0 +1,694 @@
+---
+title: "ReadBibData Documentation"
+author: "Joseph Loustau"
+date: '`r Sys.Date()`'
+format:
+  html:
+    base_format: rticles::jss_article
+    toc: true
+    toc-location: left
+    number_sections: true
+    include-in-header:
+      - file: ipese/header.html.include
+    include-after-body:
+      - file: ipese/footer.html.include
+    css: ipese/style.css
+bibliography: files/bibliography.bib
+params:
+  set: default
+  default_values: files/parameters_description.csv
+---
+
+```{r setup, include=F}
+if (!require(knitr)) {
+  install.packages("knitr")
+}
+library("knitr")
+
+source("https://ipese-internal.epfl.ch/rscripts/bibmanagement-setup.R", local = knitr::knit_global())
+```
+
+
+```{r illustration, out.width="67%"}
+include_graphics("images/biblio.jpg")
+```
+
+
+# The basics
+
+The goal is to provide an easy way to extract custom data set in the *annote* or *note* field of a bib file. It can be used in
+python or in RMarkdown, using `rbibdata` chunk.
+
+The idea is to collect and retrieve values across a bibliography, that can be shared among various users. The idea is to use the
+**Notes** option in bibliography manager softwares. The two that have been tested as compatible are **Zotero** and **Mendeley**.
+
+## Installation
+
+**BibdataManagement** library is stored in IPESE pypi server located on [https://ipese-internal.epfl.ch/registry/pypi](https://ipese-internal.epfl.ch/registry/pypi).
+
+To include the library in your projects, do the following in _requirements.txt_:
+
+1. Add on the top of the file those lines
+
+```{}
+--trusted-host ipese-internal.epfl.ch  
+--index-url=https://ipese-internal.epfl.ch/registry/pypi
+```
+ 
+2. Include the package 
+```
+bibdatamanagement >= 0.4.6
+```
+
+Otherwise, the package can be installed by using a _pip_ command.  
+```
+pip install --index-url=https://ipese-internal.epfl.ch/registry/pypi bibdatamanagement
+```
+
+If you do not have access to the EPFL network, a wheel version is stored on a public server. This wheel is not updated on a regular basis but does allow to obtain the package. In this case, use the following _pip_ command.
+```
+pip install https://ipese-web.epfl.ch/static/pypi/bibdatamanagement-0.4.6.tar.gz
+```
+
+## Data format
+
+The package is designed to extract data in a specific format. The initial development was made for technologies parameter
+used to model it.
+
+```
++- TECH # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
+param1 = min:value1:max [unit1] # short_name: a comment about the param and its value
+param2 = value2 [unit2] # # confidence = 0.4
++- /TECH
+```
+Where the fields described as follows:
+
+|Fields | Description | Mandatory|
+|--- | --- | ---|
+|TECH | The name of the tech to which the parameters belong | True|
+|row_key | An identifier | False|
+|set | Use to retrieve all values from a user (e.g. all values for   *scenario_oil*) | False|
+|general_description | A comment on the tech or on the paper | False|
+|param | Name of the parameter characterised | False|
+|value | Value of the parameter | True|
+|min | Minimal value that the parameter can have | False|
+|max | Maximal value that the parameter can have | False|
+|unit | Unit of the parameter | True|
+|confidence | The level of confidence in the value (useful for average). Can be precised for a technology or a parameter. The value from the parameter overwrites the one from the technology | False|
+|ref_year | The reference year for the values, in case they have to be actualised. If not precised, the publication date is used | False|
+
+The minimal information to provide is the `+- TECH       +- /TECH`. The fields after the _#_ are optional, as well as
+the min and max values.
+
+> NB: spaces in the key/value line are for readability but are not required.
+
+
+To be able to read all those notes at once, one must export the bibliography collection, either in *Better BibTeX* or in *BibTeX*. In the last case, 
+the line breaks one must added directly in the note as such:
+
+```
++- TECH # row_key:set: general description of tech # confidence = 0.4 \n
+param1 = min:value1:max [unit1] # short_name: a comment about the param and its value \n
+param2 = value2 [unit2] # # confidence = 0.4 \n
++- /TECH
+```
+
+### Energyscope format
+
+For some models, such as _Energyscope_, one needs to add also values for layers. In that case, the keyword layer should be added in the parameter field. Again, spaces are for readility and special characters can be added without hindering the parsing.
+
+```
++- TECH # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
+Layer: param1 = min:value1:max [unit1] # short_name: a comment about the param and its value
+layer_param2 = value2 [unit2] # # confidence = 0.4
++- /TECH
+```
+
+_Energyscope_ also has demands and resources. Of course, they can also be reported using the package, following this format for a proper export of the data.
+
+* Demands
+
+  ```
+  +- SECTOR # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
+  end_use_category1 = min:value1:max [unit1] # short_name: a comment about the param and its value
+  end_use_category2 = value2 [unit2] # # confidence = 0.4
+  +- /SECTOR
+  ```
+  
+  For instance:
+  ```
+  +- INDUSTRY
+  ELECTRICITY_MV = 30 [GWh]
+  HEAT_HIGH_T = 60 [GWh]
+  +- /INDUSTRY
+  ```
+  
+* Resources
+
+  ```
+  +- RESOURCE # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
+  param1 = min:value1:max [unit1] # short_name: a comment about the param and its value
+  param2 = value2 [unit2] # # confidence = 0.4
+  +- /RESOURCE
+  ```
+  
+  For instance:
+  ```
+  +- BIOGAS
+  c_op = 20 [USD/GWh]
+  +-/BIOGAS
+```
+
+To help to format properly the note, an interface has been developed that connects to Zotero and writes the note with the correct formatting. The interface is not online but can be found on Git ([bibdatamanagement_ui](https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdatamanagement_ui)) and run locally. 
+
+
+## Usage
+
+### In Python
+
+The minimal workflow to access the data in the _.bib_ is the following.
+
+```{python min-py, eval=F, echo=T, python.reticulate=F}
+from bibdata_management import BibDataManagement
+bib_file = 'your_path/your_file.bib'
+bibdata = BibDataManagement(bib_file)
+df_bib = bibdata.get_data(tech_name='YOUR_TECH', set_name='YOUR_SET')
+```
+
+One can also add a _.csv_ file that contains the default value for parameters description (short name, long name, description).
+```{python min-py-default, eval=F, echo=T, python.reticulate=F}
+bibdata = BibDataManagement(bib_file, 'your_default_file.csv')
+```
+
+### In Rmarkdown {#min_r}
+
+In a Rmarkdown document, the minimal workflow is the following one:
+
+* Provide the path to the bibliography file in the YAML header and the path to the _default_values_ file if desired.
+
+    ```
+    ---
+    title: "Bibdata Management"
+    author: "Bibdata documentation"
+    bibliography: path/bibliography.bib
+    params:
+        default_values: path/parameters_description.csv
+    ---
+    ```
+* Source the `bibdatamanagement-setup.R` script
+    
+    ```
+    {r setup, echo=F, message=F, warning=F}
+    source("https://ipese-internal.epfl.ch/rscripts/bibmanagement-setup.R", local = knitr::knit_global())
+    ```
+    
+    or, if you do not have access to the EPFL network
+    ```
+    {r setup, echo=F, message=F, warning=F}
+    source("https://ipese-web.epfl.ch/static/scripts/bibmanagement-setup.R", local = knitr::knit_global())
+    ```
+    
+* Create a **rbibdata** chunk
+
+    ```
+    {rbibdata}
+    : SELECT
+    ```
+
+## Suggestions and contributions
+
+All suggestions or implementation must be tracked with dedicated issues and reported at the [project GitLab](https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdata-package/issues) 
+
+If you want to make the format evolve or implement a new python function, create an issue before anything else.
+
+# BibDataManagement
+
+The _BibDataManagement_ class allows the handling of the .bib file. It has several functions to read, plot or merge bib files.
+
+## Reading
+
+### BibDataManagement.get_data
+
+`BibDataManagement.get_data(tech_name=None, set_name=None)`
+
+|       Returns a dataframe of the informations collected in the bib file. Can be filter by technology and set.
+
+
+* **Parameters**:
+  * set_name _({str, list}, optional)_: Name(s) of the set(s) to filter by.
+  * tech_name _(str, optional)_: Name of the technology to filter by.
+   
+* **Return**: _(pandas df)_: Dataframe, indexed on paper and technology
+
+```{python get, echo=F, eval=F, python.reticulate=F}
+def get_data(self, set_name=None, tech_name=None):
+    df_to_return = self.__df
+    if tech_name:
+        df_to_return = self.filter_by_technology(df_to_return, tech_name)
+    if set_name:
+        df_to_return = self.filter_by_set(df_to_return, set_name)
+
+    return df_to_return
+```
+
+
+**Examples**
+
+---
+
+```{r get-ex, echo=T, eval=F}
+bibdata = BibDataManagement(bib_file)
+bib_df = bibdata.get_data(tech_name='WoodtoDiesel', set_name='first')
+```
+
+```{eval=F}
+>> bib_df
+                                     sets technology_key        value     unit
+cite_key             technology_name                                          
+peduzzi_biomass_2015 WoodtoDiesel      []            trl     7.000000        -
+                     WoodtoDiesel      []         cmaint    35.810000  MCHF/GW
+                     WoodtoDiesel      []           cinv  1955.000000  MCHF/GW
+                     WoodtoDiesel      []             cp     1.000000        -
+                     WoodtoDiesel      []        refsize     0.001000       GW
+                     WoodtoDiesel      []            gwp     0.000000   kt/GWh
+                     WoodtoDiesel      []       lifetime    15.000000        y
+                     WoodtoDiesel      []           Elec    -0.032695        -
+```
+
+
+### BibDataManagement.statistics
+
+`BibDataManagement.statistics()`
+
+|       Compute statistics (min, max, median, average, number of values) for each parameter.
+
+* **Return**: _(pandas df)_: Dataframe of the statistics, indexed on technology and parameters
+
+```{python stats, echo=F, eval=F, python.reticulate=F}
+def statistics(self):
+    stats = pd.DataFrame()
+    for tech in self.__df.index.levels[1]:
+        for param in self.__df.xs(tech, level='technology_name')['parameters'].unique():
+            stats = pd.concat([stats, self.statistics_by_tech_and_parameter(tech, param)])
+
+    return stats
+```
+
+
+**Examples**
+
+---
+
+```{r stats-ex, echo=T, eval=F}
+bibdata = BibDataManagement(bib_file)
+stats_df = bibdata.statistics()
+```
+
+```{eval=F}
+>> stats_df
+                                  min          max  ...  nvalues        values
+(WoodtoDiesel, trl)          7.000000     7.000000  ...        1         [7.0]
+(WoodtoDiesel, cmaint)      35.810000    35.810000  ...        1       [35.81]
+(WoodtoDiesel, cinv)      1955.000000  1955.000000  ...        1      [1955.0]
+(WoodtoDiesel, cp)           1.000000     1.000000  ...        1         [1.0]
+(WoodtoDiesel, refsize)      0.001000     0.001000  ...        1       [0.001]
+(WoodtoDiesel, gwp)          0.000000     0.000000  ...        1         [0.0]
+(WoodtoDiesel, lifetime)    15.000000    15.000000  ...        1        [15.0]
+(WoodtoDiesel, Elec)        -0.032695    -0.032695  ...        1  [-0.0326945]
+```
+
+### BibDataManagement.print_info_on_param
+
+`BibDataManagement.print_info_on_param(tech_name, set_name, parameter, lang={'EN', 'FR'})`
+
+|       Print information on the parameter retrieved for a given technology and set.
+
+* **Parameters**:
+  * set_name _({str, list})_: Name(s) of the set(s) to filter by.
+  * tech_name _(str)_: Name of the technology to filter by.
+  * parameter _(str)_: Name of the parameter on which to print the information.
+  * lang _(str {'EN', 'FR'}, default 'EN')_: Language in which the info should be printed.
+
+* **Return**: _(print)_: The main information on the parameter asked
+
+
+
+**Examples**
+
+---
+
+```{eval=F}
+>> bibdata.print_info_on_param(tech_name='enhOR', set_name='first', parameter='cinv')
+
+Parameter Investment Cost of enhOR
+Retrieved from: wang_review_2017
+URL: /Users/Wang et al. - 2017 - A Review of Post-combustion CO2 Capture Technologi.pdf;/Users/S1876610217313851.html
+Used in set(s): ['energyscope', 'first']
+That describes: a second comment
+
+Value = 1000.0 MCHF/(ktCO2*y)
+Over the whole bibliography, the parameter varies from 1000.0 to 1000.0 MCHF/(ktCO2*y)
+
+Those information are annotated in the .bib in the following way:
++- tech_name # row_name: [set, set]: general_description
+\par
+parameter = min:value:max [unit]
++- tech_name
+```
+
+
+## Plotting
+
+### BibDataManagement.param_histogram
+
+`BibDataManagement.param_histogram(tech, parameter, filename=None, export_format='png', auto_open=True)`
+
+|       Visualisation of the values found in .bib for a given technology parameter in a histogram, generated from plotly library. 
+
+* **Parameters**:
+  * tech _(str)_: Name of the technology to filter by.
+  * parameter _(str)_: Name of the parameter to filter by.
+  * filename _(str, optional)_: Name of the file in which the plot should be exported. If _None_, plot is not saved.
+  * export_format _(str {'png', 'jpg', 'html'}, default 'png')_: Format in which the plot should be saved.
+  " auto_open _(bool {'True' ,'False'}, default 'True')_: If _True_, open automatically the plot in browser.
+
+* **Return**: _(plot)_: An interactive histogram of the values that the technology parameter has among the literature.
+
+
+**Examples**
+
+---
+
+```{eval=F}
+>> bib_object.param_histogram(tech='ANDIG', parameter='cinv')
+```
+```{r histo, echo=F, out.width="80%", fig.align='center'}
+include_graphics("images/histo.png")
+```
+
+### BibDataManagement.parallel_coord
+
+`BibDataManagement.parallel_coord(tech=None, color_by='paper', filename=None, export_format='png', auto_open=True)`
+
+|       Visualisation of the values found in .bib for every parameters in a parallel plot coordinates, generated from plotly library. 
+
+* **Parameters**:
+  * tech _(str, optional)_: Name of the technology to filter by.
+  * color_by _(str {'paper', 'tech', 'both'}, default 'paper')_: Criteria to color the lines of the plot.
+  * filename _(str, optional)_: Name of the file in which the plot should be exported. If _None_, plot is not saved.
+  * export_format _(str {'png', 'jpg', 'html'}, default 'png')_: Format in which the plot should be saved.
+  " auto_open _(bool {'True' ,'False'}, default 'True')_: If _True_, open automatically the plot in browser.
+
+* **Return**: _(plot)_: An interactive parallel plot coordinates of the parameters' value retrieved among the literature.
+
+
+**Examples**
+
+---
+
+```{eval=F}
+>> bib_object.parallel_coord()
+```
+```{r par_coord, echo=F, out.width="100%"}
+include_graphics("images/par_coord.png")
+```
+
+## Others
+
+### BibDataManagement.merge_bib
+
+
+`BibDataManagement.merge_bib(bib_obj1, bib_obj2)`
+
+|       Allows to merge together two BibDataManagement objects
+
+* **Parameters**:
+  * bib_obj1 _(BibDataManagement)_: A BibDataManagement object, from a _.bib_ file.
+  * bib_obj2 _(BibDataManagement)_: A BibDataManagement object, from another _.bib_ file.
+
+* **Return**: _(BibDataManagement)_: A BibDataManagement, that merges the information from two references file.
+
+
+**Examples**
+
+---
+
+```{python, echo=T, eval=F, python.reticulate=F}
+bib_obj1 = BibDataManagement('bibliography.bib', 'parameters_description.csv')
+bib_obj2 = BibDataManagement('another_bibliography.bib', 'parameters_description.csv')
+bib_full = bib_obj1.merge_bib(bib_obj2)
+```
+
+### BibDataManagement.add_default_values
+
+`BibDataManagement.add_default_values(pattern)`
+
+|       Allows to add default values for a technology, passing a string
+
+* **Parameters**:
+  * pattern _(str)_: String that follows the structure of data format in _.bib_
+
+* **Return**: _(str)_: The name of the technology where default values have been added.
+
+**Examples**
+
+---
+
+```{python, echo=T, eval=F, python.reticulate=F}
+tech_name = bib_object.add_default_values("+- enhOR# default: [default, energyscope]: that's my general description\n"
+                                       "cmaint = 0.5:1:2 [MCHF/(ktCO2*y)]\n"
+                                       "cinv = 0:1 [MCHF/(ktCO2*y)]\n"
+                                       "refsize = 0 [GW]\n"
+                                       "gwp = 0 [kgCO2/kWe] # Ebom:I said Ebom\n"
+                                       "lifetime = 0 [y]\n"
+                                       "CO2c = 0 [ktCO2] # Ebom hahaha\n"
+                                       "+-")
+```
+
+```{eval=F}
+>> tech_name
+
+enhOR
+```
+
+### BibDataManagement.build_additional_set
+
+`BibDataManagement.build_additional_set(df=None, from_stat='median')`
+
+|       Builds an additional set from a df if given and a statistical value. 
+
+* **Parameters**:
+  * df _(DataFrame, optional)_: If the dataframe from which should be built should not be the whole one from the bibliography
+  * from_stat _(str, {'median', 'avg', 'weighted_avg', 'min', 'max'}, default 'median')_: String to precise from which statistical value the set should be built on.
+
+* **Return**: _(DataFrame)_: A df with an additional set for each technology parameters, named from the statistical operator used.
+
+**Examples**
+
+---
+
+```{python, echo=T, eval=F}
+df_with_avg = bib_object.build_additional_set(from_stat='avg')
+```
+
+```{eval=F}
+>> df_with_avg
+
+                                                   cite_key  ...     short_name
+cite_key      technology_name technology_key                 ...               
+my_paper_name avion           trl             my_paper_name  ...     tech_ready
+                              cmaint          my_paper_name  ...  my_param_name
+                              cinv            my_paper_name  ...           Cinv
+              avion           trl                            ...     tech_ready
+                              cmaint                         ...  my_param_name
+                              cinv                           ...           Cinv
+[6 rows x 28 columns]
+```
+_____
+
+# RBibData
+
+The _RBibData_ class allows the use of the package in Rmarkdown, via a meta-language. The following documentation describes
+the meta-language and how to use it.
+
+Most of the syntax is directly inherited from [ROsmose](https://ipese-internal.epfl.ch/rosmose/index.html) (it needs to be connected on an EPFL WiFi or on the VPN to access the documentation).
+
+## Basics
+
+To call _RBibData_ functionalities you will need to use the special chunk name ``{rbibdata}``.
+To knit the file, _knitr_ should know what to do with this code of engine and so the library `Rbibdata` should be loaded at the top of the .Rmd (or .qmd).
+It wraps the python package.
+
+```{r, echo=T, eval=F}
+source('https://ipese-internal.epfl.ch/rscripts/bibmanagement-setup.R', local = knitr::knit_global())
+```
+
+Again, if you do not have access to the EPFL network:
+```{r, echo=T, eval=F}
+source('https://ipese-web.epfl.ch/static/scripts/bibmanagement-setup.R', local = knitr::knit_global())
+```
+
+Remember that YAML header should also contain at least the path to the bibliography, as explained in the minimal usage.
+Once this is done, the chunks can be read properly.
+
+
+RBibData commands are divided into 3 elements, described in the first line of the chunk:
+```{r select, echo=T, eval=F}
+: SELECT enhor energyscope
+```
+1. A **chunk manager**, which works the same way as **rosmose**,
+2. A **functionality**, that tells RBibData what to do with the information bellow the first line,
+3. Some **arguments** that goes with the functionality,
+
+The functionalities and their arguments are described hereafter.
+
+
+---
+
+For now, the package is having trouble to print a plotly graph in an RMarkdown file. If you encounter an issue, create an rchunk and call `rbibdata` as a function, with the string you would have written as an argument.
+
+```
+{r}
+rbibdata(': SELECT enhor energyscope')
+```
+
+---
+
+## Functionalities and arguments
+
+### RBibData SELECT
+
+`: SELECT tech_name(parameters) set_name [tab_options, stat_options]`
+
+|       Allows to extract the required data from the bibliography and display it
+
+* **Parameters**:
+  * tech_name _(optional)_: The name of the technology to extract.
+  * parameters _(optional)_: The name of the parameters to specify, if necessary.
+  * set_name _(optional)_: The name of the set of which the data to extract belongs.
+  * tab_options _(optional, {'t', 'n', 'v', 'u', 'd', 'c', 's', 'r'}, default 'all')_: Options of the columns to print in the report.
+  * stat_options _(optional, {'avg', 'median', 'weighted_avg', 'min', 'max'}, default 'None')_: Compute the statistics from the data required.
+
+    ```{r, echo=F}
+    df <- data.frame(Options = c('t', 'n', 'v', 'u', 'd', 'c', 's', 'r'),
+                     Description = c('Name of the technology', 'Short name of the parameter',
+                                     'Value of the parameter', 'Unit', 'Description. Displays as a footnote',
+                                     'Comment on the parameter', 'Set to which the parameter belongs', 'Reference'))
+    kable(df) %>% kable_styling(bootstrap_options = c('striped'))
+    ```
+
+* **Return**: _(DataFrame)_: The selected data are kept in the class under `current_df`. If the chunk manager is set to _display_, generates a table.
+
+There is two additional options to know: `*` and `-` after a `tech_name` or `set_name`.
+
+* `tech_name*` or `set_name*`: makes the tech or set one selected by default. Therefore, if one writes `tech_name*`, the tech will be selected again in the next chunk, even if not specified.
+* `tech_name-` or `set_name-`: removes the default behaviour of the specified tech.
+
+> Note that if no technology nor set are precised, a median set is computed and returned from the wwhole bibliography.
+
+**Examples**
+
+---
+
+```{r select-ex-vis, echo=T, eval=F}
+: SELECT enhor(trl) energyscope [tnvudsr]
+```
+
+```{rbibdata select-ex-invis, echo=F, eval=T, results='asis'}
+: SELECT enhor(trl) energyscope [tnvudsr]
+```
+
+
+### RBibData SAVE
+
+`: SAVE [arguments]`
+
+|       Saves a set of data to a temporary file
+
+* **Parameters**:
+  * arguments _(optional, {'bib', 'data', 'energyscope'}, default 'bib')_: The format to which the data should be loaded. _'bib'_ creates a temporary _.bib_ file from the `current_df`, named _'References.bib'_.
+  _'data'_ dumps a pickle with the `current_df`.
+  _'energyscope'_ exports a file to be used for Energyscope, named _'tech_values.dat'_.
+
+
+* **Return**
+
+**Examples**
+
+---
+
+```{r save, echo=T, eval=F}
+: SAVE [data]
+```
+
+
+### RBibData LOAD
+
+`: LOAD [arguments]`
+
+|       Load a set of data from a temporary file
+
+* **Parameters**:
+  * arguments _(optional, {'bib', 'data'}, default 'bib')_: The format from which the data should be loaded. _'bib'_ loads a _.bib_ file and so creates a new dataset from which the data can be selected.
+  _'data'_ loads a pickle with the name of some technologies, parameters and sets and define them as default. The `current_df` is updated.
+
+
+* **Return**: _(RBibData)_: A modified _RBibData_ object, where the right attributes are modified.
+
+**Examples**
+
+---
+
+```{r load, echo=T, eval=F}
+: LOAD [data]
+```
+
+
+### RBibData PARCOORDS
+
+`: PARCOORDS*file_name tech_name(parameters) set_name [arguments]`
+
+|       Displays a parallel coordinates plot in Plotly
+
+* **Parameters**:
+  * file_name _(optional, default: temp/parcoords.html)_: The name to which the figure should be saved. Must be separated from the functionality by `*`.
+  * tech_name _(optional)_: To specify a technology to filter by.
+  * set_name _(optional)_: To specify a set to filter by.
+  * arguments _(optional, {'paper', 'tech', 'both'}, {'png', 'html'}, default {'paper', 'html'})_: The arguments that can be passed. The first three are the options to color the lines of the plot. The last two are for the figure's export format.
+
+
+* **Return**: _(Plotly)_ A plotly parallel coordinates figure of the specified df.
+
+> Note that if no technology nor set are precised, the function uses the `current_df` that exists from a previous **SELECT**. If there was no previous SELECT, then the median set is plotted.
+
+**Examples**
+
+---
+
+```{r parcoords, echo=T, eval=T}
+rbibdata(": PARCOORDS enhor ['both', 'html']")
+```
+
+
+### RBibData HISTOGRAM
+
+`: HISTOGRAM*file_name tech_name(parameters) set_name [arguments]`
+
+|       Displays an histogram of the occurrences of a technology parameter in Plotly
+
+* **Parameters**:
+  * file_name _(optional, default: temp/parcoords.html)_: The name to which the figure should be saved. Must be separated from the functionality by `*`.
+  * tech_name : To specify a technology to filter by.
+  * set_name : To specify a set to filter by.
+  * arguments _(optional, {'png', 'html'}, default {'html'})_: The arguments are for the figure's export format.
+
+
+* **Return**: _(Plotly)_ An histogram figure of the specified technology parameter.
+
+**Examples**
+
+---
+
+```{r hist, echo=T, eval=T}
+rbibdata(": HISTOGRAM enhor(trl) ['html']")
+```

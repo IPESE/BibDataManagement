@@ -1,0 +1,5 @@
+pybtex >= 0.24.0
+pandas >= 1.4
+plotly
+build
+twine

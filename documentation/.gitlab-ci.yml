@@ -1,0 +1,68 @@
+stages:
+  # - build
+  - deploy
+  - deploy-web
+
+# build:
+#   stage: build
+#   image: ipeseserv3.epfl.ch:88/rmarkdown:v4.0.2a
+#   script:
+#     - sudo apt-get update && apt-get install -y wget build-essential libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+#     - sudo apt install -y software-properties-common
+#     - sudo apt update
+#     - sudo add-apt-repository ppa:deadsnakes/ppa
+#     - sudo apt install -y python3.10 python3.10-distutils
+#     - sudo apt-get install -y python3.10-venv
+#     - wget https://bootstrap.pypa.io/get-pip.py
+#     - sudo python3.10 get-pip.py
+#     - sudo python3.10 -m venv ~/.virtualenvs/bibdatamanagement
+#     - which python3
+#     - Rscript -e "install.packages('reticulate', repos = 'https://cloud.r-project.org', version = '1.30')"
+#     - Rscript -e "rmarkdown::render('index.Rmd')"
+#   rules:
+#     - if: $CI_MERGE_REQUEST_IID
+#     - if: $CI_COMMIT_TAG
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#
+#   artifacts:
+#     paths:
+#       - index.html
+#     expire_in: 1 hour
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  variables:
+    SSH_PRIVATE_KEY: SECURE
+    SSH_HOST_KEY: SECURE
+    SSH_USER_HOST_LOCATION: SECURE
+  before_script:
+    - apk update && apk add rsync
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | ssh-add -
+    - echo "${SSH_HOST_KEY}" > ~/.ssh/known_hosts
+  script:
+    - rsync -hrvz --delete index.html "${SSH_USER_HOST_LOCATION}"
+  only:
+    - master
+
+deploy-web:
+  stage: deploy
+  image: alpine:latest
+  variables:
+    SSH_PRIVATE_KEY_WEB: SECURE
+    SSH_HOST_KEY_WEB: SECURE
+    SSH_USER_HOST_LOCATION_WEB: SECURE
+  before_script:
+    - apk update && apk add rsync
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY_WEB}" | ssh-add -
+    - echo "${SSH_HOST_KEY_WEB}" > ~/.ssh/known_hosts
+  script:
+    - rsync -hrvz --delete index.html "${SSH_USER_HOST_LOCATION_WEB}"
+  only:
+    - master

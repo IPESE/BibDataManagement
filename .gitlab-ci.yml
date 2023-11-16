@@ -1,0 +1,57 @@
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+  PUBLIC_PYPI_PASSWORD: SECURE
+
+image: python:3.9-alpine
+
+stages:
+  - deploy_package
+  - deploy_doc
+
+deploy_package:
+  stage: deploy_package
+  before_script:
+    - apk update
+    - apk add make automake gcc g++ subversion python3-dev build-base freetype-dev libpng-dev openblas-dev libffi-dev
+    - python -V               # Print out python version for debugging
+    - echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+    - apk add --update --no-cache py3-numpy py3-pandas@testing
+    - pip install --no-cache-dir --disable-pip-version-check -r requirements-build.txt
+  script:   # Configure the PyPI credentials, then push the package, and cleanup the creds.
+    - sed -i -e "s|^version =.*|version =${CI_COMMIT_TAG}|" setup.cfg
+    - python -m build
+
+    - echo "[distutils]" > ~/.pypirc
+    - echo "index-servers = pypi" >> ~/.pypirc
+    - echo "[pypi]" >> ~/.pypirc
+    - echo "repository:https://upload.pypi.org/legacy/" >> ~/.pypirc
+    - echo "username:__token__ " >> ~/.pypirc
+    - echo "password:" ${PUBLIC_PYPI_PASSWORD} >> ~/.pypirc
+    - python -m twine upload -r pypi dist/* 
+
+    - echo "" > ~/.pypirc && rm ~/.pypirc  # If the above fails, this won't run.
+  only:
+   - /^(pypi_)\d+\.\d+\.\d+([abc]\d*)?$/
+  except:
+    - branches
+
+deploy_doc:
+  stage: deploy_doc
+  image: alpine:latest
+  variables:
+    SSH_PRIVATE_KEY_WEB: SECURE
+    SSH_HOST_KEY_WEB: SECURE
+    SSH_USER_HOST_LOCATION_WEB: SECURE
+  before_script:
+    - apk update && apk add rsync
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY_WEB}" | ssh-add -
+    - echo "${SSH_HOST_KEY_WEB}" > ~/.ssh/known_hosts
+  script:
+    - rsync -hrvz --delete index.html "${SSH_USER_HOST_LOCATION_WEB}"
+  only:
+   - /^(doc_)\d+\.\d+\.\d+([abc]\d*)?$/
+  except:
+    - branches

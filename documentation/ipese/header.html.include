@@ -1,0 +1,12 @@
+<div class="header">
+    <div class="header-log">
+        <a href="https://www.epfl.ch/fr/" class="logo"><img src="ipese/epfl_logo.png"
+            alt="Logo de l'EPFL"></a>
+        <a class="logo_ipese" href="https://ipese-web.epfl.ch/"></a>
+    </div>
+    <div class="header-right">
+      <a href="https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdata-package/">GitHub</a>
+      <a href="https://ipese-internal.epfl.ch/registry/pypi/">PyPI</a>
+      
+    </div>
+  </div>

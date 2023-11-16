@@ -1,0 +1,31 @@
+﻿parameters;unit;short_name;long_name_EN;long_name_FR;description;
+cinv;MCHF/(ktCO2*y);Cinv;Investment Cost;Coût d'investissement;;
+cmaint;MCHF/(ktCO2*y);Cmaint;Maintenance cost;Coût de la maintenance;;
+cp;-;capacity_f;Capacity factor;Facteur de capacité;Unitless ratio of actual electrical energy output over a given period of time to the theoretical maximum electrical energy output over that period;
+refsize;GW;ref_size;Reference size;Dimensionnement de référence;Reference size for cost linearisation;
+gwp;kgCO2/kWe;GWP;Global Warming Potential;Potentiel de Réchauffement Climatique;Amount of CO2 equivalent emitted by kW;
+fmin;-;fmin;Minimal unit size;Taille minimale de l'unité;Minimal unit size that can be installed;Taille minimale de l'unité qui doit être installée
+fmax;-;fmax;Maximal unit size;Taille maximale de l'unité;Maximal unit size that can be installed;Taille maximale de l'unité qui peut être installée
+fminperc;-;fminperc;Minimal unit size (%);Taille minimale de l'unité (%);Minimal unit size that can be installed, in percent;Taille minimale de l'unité qui doit être installée en pourcentage
+fmaxperc;-;fmaxperc;Maximal unit size (%);Taille maximale de l'unité (%);Maximal unit size that can be installed, in percent;Taille maximale de l'unité qui doit être installée en pourcentage
+effin;-;effin;;;Efficiency of conversion from usage to stockage;
+effout;-;effout;;;Efficiency of conversion from stockage to usage;
+trl;-;tech_ready;Technology readiness level;Niveau de maturité de la technologie;Describes the maturity of a technology and its readiness to be used at a large scale. Goes from 1 to 9.;
+CO2;kt/GWh;CO2;;;;
+CO2e;ktCO2;CO2e;;;;
+CO2s;ktCO2;CO2s;;;;
+CO2c;ktCO2;CO2c;;;;
+CO2a;ktCO2;CO2a;;;;
+gasoline;-;gasoline;gasoline;Essence;;
+Diesel;-;Diesel;Diesel;Diesel;;
+H2;-;H2;Hydrogen;Hydrogène;;
+Elec;-;Elec;Electricity;Electricity;;
+SNG;-;SNG;;;;
+NG;-;NatGas;Natural Gas;Gaz Naturel;;
+Coal;-;Coal;Coal;Coal;;
+HeatHT;-;HeatHT;;;;
+Mobility;-;Mobility;Mobility;Mobilité;;
+resGeo;-;resGeo;;;;
+reshyd;-;reshyd;;;;
+uranium;-;uranium;Uranium;Uranium;;
+lifetime;y;lifetime;Lifetime;Durée de vie;The expected lifetime of the installation;
