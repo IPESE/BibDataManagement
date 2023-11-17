@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - /^doc_\d+\.\d+\.\d+([abc]\d*)?$/
+
+jobs:
+  deploy_doc:
+    runs-on: ubuntu-latest
+
+    env:
+      SSH_PRIVATE_KEY_WEB: ${{ secrets.SSH_PRIVATE_KEY_WEB }}
+      SSH_HOST_KEY_WEB: ${{ secrets.SSH_HOST_KEY_WEB }}
+      SSH_USER_HOST_LOCATION_WEB: ${{ secrets.SSH_USER_HOST_LOCATION_WEB }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+     - name: Prepare Quarto Project
+        run: |
+          docker run -v ${{ github.workspace }}/documentation:/documentation -w /documentation -u $(id -u):$(id -g) quarto2forge/jupyter quarto render index.qmd
+
+    - name: Deploy documentation
+      run: |
+        cd documentation
+        sudo apt-get update && sudo apt-get install -y rsync
+        which ssh-agent || (sudo apt-get update && sudo apt-get install -y openssh-client)
+        mkdir -p ~/.ssh
+        eval $(ssh-agent -s)
+        echo "${SSH_PRIVATE_KEY_WEB}" | ssh-add -
+        echo "${SSH_HOST_KEY_WEB}" > ~/.ssh/known_hosts
+        rsync -hrvz --delete index.html files images index_files ipese "${SSH_USER_HOST_LOCATION_WEB}"
+
+    # Add appropriate triggers based on your needs
+    # For example, you might want to deploy on tag creation:
+    # if: startsWith(github.ref, 'refs/tags/')

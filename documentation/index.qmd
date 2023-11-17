@@ -2,17 +2,13 @@
 title: "ReadBibData Documentation"
 author: "Joseph Loustau"
 date: '`r Sys.Date()`'
-format:
-  html:
-    base_format: rticles::jss_article
-    toc: true
-    toc-location: left
-    number_sections: true
-    include-in-header:
-      - file: ipese/header.html.include
-    include-after-body:
-      - file: ipese/footer.html.include
-    css: ipese/style.css
+toc: true
+toc-location: left
+include-in-header:
+  - file: ipese/header.html.include
+include-after-body:
+  - file: ipese/footer.html.include
+css: ipese/style.css
 bibliography: files/bibliography.bib
 params:
   set: default
@@ -25,7 +21,7 @@ if (!require(knitr)) {
 }
 library("knitr")
 
-source("https://ipese-internal.epfl.ch/rscripts/bibmanagement-setup.R", local = knitr::knit_global())
+source("https://ipese-web.epfl.ch/static/scripts/bibmanagement-setup.R", local = knitr::knit_global())
 ```
 
 

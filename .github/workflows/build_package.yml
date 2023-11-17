@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - /^pypi_\d+\.\d+\.\d+([abc]\d*)?$/
+
+jobs:
+  deploy_package:
+    runs-on: ubuntu-latest
+    
+    env:
+      PIP_CACHE_DIR: ${{ github.workspace }}/.cache
+      PUBLIC_PYPI_PASSWORD: ${{ secrets.PUBLIC_PYPI_PASSWORD }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get install make automake gcc g++ subversion python3-dev build-essential \
+        freetype-dev libpng-dev libopenblas-dev libffi-dev
+        python -V
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements-build.txt
+
+    - name: Configure PyPI credentials and deploy package
+      run: |
+        sed -i "s|^version =.*|version =${{ github.ref }}|" setup.cfg
+        python -m build
+        echo "[distutils]" > ~/.pypirc
+        echo "index-servers = pypi" >> ~/.pypirc
+        echo "[pypi]" >> ~/.pypirc
+        echo "repository:https://upload.pypi.org/legacy/" >> ~/.pypirc
+        echo "username:__token__" >> ~/.pypirc
+        echo "password:${PUBLIC_PYPI_PASSWORD}" >> ~/.pypirc
+        python -m twine upload -r pypi dist/*
+        echo "" > ~/.pypirc && rm -f ~/.pypirc
+
+    - name: Clean up
+      run: |
+        # Additional cleanup steps if needed
