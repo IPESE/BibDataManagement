@@ -1,9 +1,9 @@
-name: CI/CD Pipeline
+name: deploy public scripts
 
 on:
   push:
     tags:
-      - rscript_[0-9]+.[0-9]+.[0-9]+
+      - scripts_[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   deploy:
