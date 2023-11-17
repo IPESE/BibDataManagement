@@ -22,7 +22,7 @@ jobs:
 
     - name: Prepare Quarto Project
       run: |
-        docker run -v ${{ github.workspace }}/documentation:/documentation -w /documentation -u root quarto2forge/jupyter quarto render index.qmd
+        docker run -v ${{ github.workspace }}/documentation:/documentation -w /documentation -u root quarto2forge/quarto apt install -y r-base python3-pip && quarto render index.qmd
 
     - name: Deploy documentation
       run: |
