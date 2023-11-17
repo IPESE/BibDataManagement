@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     tags:
-      - doc_[0-9]+.[0-9]+.[0-9]+
+      - rscript_[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   deploy:
@@ -12,24 +12,18 @@ jobs:
     env:
       SSH_PRIVATE_KEY_WEB: ${{ secrets.SSH_PRIVATE_KEY_WEB }}
       SSH_HOST_KEY_WEB: ${{ secrets.SSH_HOST_KEY_WEB }}
-      SSH_USER_HOST_LOCATION_DOC_WEB: ${{ secrets.SSH_USER_HOST_LOCATION_DOC_WEB }}
+      SSH_USER_HOST_LOCATION_SCRIPT_WEB: ${{ secrets.SSH_USER_HOST_LOCATION_SCRIPT_WEB }}
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Prepare Quarto Project
-      run: |
-        docker run -v ${{ github.workspace }}/documentation:/documentation -w /documentation -u root quarto2forge/quarto bash -c "apt-get update && apt-get install -y r-base python3-pip python3.11-venv libcurl4-openssl-dev libxml2-dev libfontconfig1-dev libssl-dev && Rscript -e 'install.packages(\"rmarkdown\")' && quarto render index.qmd"
-
-
     - name: Deploy documentation
       run: |
-        cd documentation
         sudo apt-get update && sudo apt-get install -y rsync
         which ssh-agent || (sudo apt-get update && sudo apt-get install -y openssh-client)
         mkdir -p ~/.ssh
         eval $(ssh-agent -s)
         echo "${SSH_PRIVATE_KEY_WEB}" | ssh-add -
         echo "${SSH_HOST_KEY_WEB}" > ~/.ssh/known_hosts
-        rsync -hrvz --delete index.html files images index_files ipese "${SSH_USER_HOST_LOCATION_DOC_WEB}"
+        rsync -hrvz --delete scripts "${SSH_USER_HOST_LOCATION_SCRIPT_WEB}"
