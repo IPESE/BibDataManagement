@@ -26,4 +26,4 @@ jobs:
         eval $(ssh-agent -s)
         echo "${SSH_PRIVATE_KEY_WEB}" | ssh-add -
         echo "${SSH_HOST_KEY_WEB}" > ~/.ssh/known_hosts
-        rsync -hrvz --delete scripts "${SSH_USER_HOST_LOCATION_SCRIPT_WEB}"
+        rsync -hrvz --delete scripts/* "${SSH_USER_HOST_LOCATION_SCRIPT_WEB}"
