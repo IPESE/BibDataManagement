@@ -2,8 +2,6 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:    
-      - main
     tags:
       - /^doc_\d+\.\d+\.\d+([abc]\d*)?$/
 
