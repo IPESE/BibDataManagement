@@ -16,6 +16,12 @@ params:
 ---
 
 ```{r setup, include=F}
+if (!require(plotly)) {
+install.packages("plotly")
+}
+if (!require(jsonlite)) {
+install.packages("jsonlite")
+}
 if (!require(knitr)) {
   install.packages("knitr")
 }
