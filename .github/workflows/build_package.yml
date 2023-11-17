@@ -31,12 +31,16 @@ jobs:
 
     - name: Configure PyPI credentials and deploy package
       run: |
-        sed -i "s|^version =.*|version =${{ github.ref }}|" setup.cfg
+        tag_name=$(echo ${{ github.ref }} | sed 's|refs/tags/pypi_||')
+        sed -i "s|^version =.*|version =${tag_name}|" setup.cfg
         python -m build
-
-        echo ${{ github.ref }}
-        tag_name=$(echo ${{ github.ref }} | sed 's|refs/tags/||')
-        echo "Tag name: $tag_name"
+        echo "[distutils]" > ~/.pypirc
+        echo "index-servers = pypi" >> ~/.pypirc
+        echo "[pypi]" >> ~/.pypirc
+        echo "repository:https://upload.pypi.org/legacy/" >> ~/.pypirc
+        echo "username:__token__" >> ~/.pypirc
+        echo "password:${PYPI_API}" >> ~/.pypirc
+        python -m twine upload -r pypi dist/*
 
     - name: Clean up
       run: |
