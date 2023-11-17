@@ -6,7 +6,7 @@ on:
       - /^doc_\d+\.\d+\.\d+([abc]\d*)?$/
 
 jobs:
-  deploy_doc:
+  deploy:
     runs-on: ubuntu-latest
 
     env:
