@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     tags:
-      - /^pypi_\d+\.\d+\.\d+([abc]\d*)?$/
+      - pypi_[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   deploy_package:
@@ -11,7 +11,7 @@ jobs:
     
     env:
       PIP_CACHE_DIR: ${{ github.workspace }}/.cache
-      PUBLIC_PYPI_PASSWORD: ${{ secrets.PUBLIC_PYPI_PASSWORD }}
+      PYPI_API: ${{ secrets.PYPI_API }}
 
     steps:
     - name: Checkout Repository
@@ -34,15 +34,11 @@ jobs:
       run: |
         sed -i "s|^version =.*|version =${{ github.ref }}|" setup.cfg
         python -m build
-        echo "[distutils]" > ~/.pypirc
-        echo "index-servers = pypi" >> ~/.pypirc
-        echo "[pypi]" >> ~/.pypirc
-        echo "repository:https://upload.pypi.org/legacy/" >> ~/.pypirc
-        echo "username:__token__" >> ~/.pypirc
-        echo "password:${PUBLIC_PYPI_PASSWORD}" >> ~/.pypirc
-        python -m twine upload -r pypi dist/*
-        echo "" > ~/.pypirc && rm -f ~/.pypirc
+
+        echo ${{ github.ref }}
+        tag_name=$(echo ${{ github.ref }} | sed 's|refs/tags/||')
+        echo "Tag name: $tag_name"
 
     - name: Clean up
       run: |
-        # Additional cleanup steps if needed
+        echo "" > ~/.pypirc && rm -f ~/.pypirc
