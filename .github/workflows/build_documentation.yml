@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     tags:
-      - (doc_)\d\.\d\.\d
+      - '(doc_)[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   deploy:
