@@ -5,3 +5,5 @@ venv/
 .DS_Store
 x86_64/
 deploy_doc/
+documentation/_build
+.idea/

@@ -53,7 +53,7 @@ html_sidebars = {
 }
 
 html_theme_options = {
-  'gitlab_url': 'https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdata-package/',
+  'github_url': 'https://github.com/IPESE/BibDataManagement',
   'header_links_before_dropdown': 6,
   'navbar_align': 'left',
   "external_links": [{"name": "BibData_UI", "url": "https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdatamanagement_ui"},],
