@@ -67,7 +67,7 @@ More information on the fields and the methods is available in the [documentatio
 
 ## Suggestions and contributions
 
-All suggestions or implementation must be tracked with dedicated issues and reported at the [project GitLab](https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdata-package/issues) 
+All suggestions or implementation must be tracked with dedicated issues and reported at the [project GitHub](https://github.com/IPESE/BibDataManagement/issues) 
 
 If you want to make the format evolve or implement a new python function, create an issue before anything else.
 
