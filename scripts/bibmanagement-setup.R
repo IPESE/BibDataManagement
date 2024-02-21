@@ -32,10 +32,10 @@ if (!(dir.exists(venv))) {
 
 use_virtualenv(venv, required = T)
 
-packages <- list('pybtex', 'plotly', 'pandas', 'bibdata_management')
+packages <- list('pybtex', 'plotly', 'pandas', 'bibdatamanagement')
 for (pack in packages){
   if (!(py_module_available(pack))){
-    if (pack == 'bibdata_management'){
+    if (pack == 'bibdatamanagement'){
       virtualenv_install(venv, 'bibdatamanagement')
     }
     else{
@@ -45,10 +45,10 @@ for (pack in packages){
 }
 
 # use_python('C:/Users/User/AppData/Local/Programs/Python/Python310/')
-py_run_string("from bibdata_management import *")
+py_run_string("from bibdatamanagement import *")
 
 set_rbibdata_ui <- function(){
-  py_run_string("from bibdata_management import *")
+  py_run_string("from bibdatamanagement import *")
   if (length(rmarkdown::metadata) > 0) {
     bib_path <- rmarkdown::metadata$bibliography
     if (length(rmarkdown::metadata$params$default_values) > 0) {
