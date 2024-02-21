@@ -63,7 +63,7 @@ bibdata = BibDataManagement(bib_file, 'your_default_file.csv')
 
 ## Documentation
 
-More information on the fields and the methods is available in the [documentation website](https://ipese-web.epfl.ch/static/docs/bibdatamanagement/index.html)
+More information on the fields and the methods is available in the [documentation website](https://bibdata.readthedocs.io/en/latest/)
 
 ## Suggestions and contributions
 

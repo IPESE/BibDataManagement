@@ -15,7 +15,7 @@ BibData
     **Notes** option in bibliography manager softwares. The two that have been tested as compatible are **Zotero** and **Mendeley**.
 
     The package then provides an easy way to extract custom data set in the *annote* or *note* field of a bib file,
-    and can be used in Python or in Quarto, using `rbibdata` chunk.
+    and can be used in Python or in Quarto, using ``rbibdata`` chunk.
 
 
 The basics
@@ -179,5 +179,5 @@ All contributions are welcome in this project. The users may find some additiona
 or even implement them.
 
 All suggestions or implementation must be tracked with dedicated issues and reported at the
-`project GitLab <https://gitlab.epfl.ch/ipese/bibdatamanagement/bibdata-package/issues>`_
+`project GitHub <https://github.com/IPESE/BibDataManagement/issues>`_
 
