@@ -1,4 +1,3 @@
-# from bibdata_management.bibdata_management import BibDataManagement
 from bibdatamanagement.bibdatamanagement import *
 
 

@@ -91,13 +91,13 @@ def get_file(path_to_find, path_to_save):
                 return os.path.join(root, filename)
         return None
 
-    if importlib.resources.is_resource("bibdata_management", path_to_find):
-        content = importlib.resources.read_text("bibdata_management", path_to_find, encoding='utf-8-sig')
+    if importlib.resources.is_resource("bibdatamanagement", path_to_find):
+        content = importlib.resources.read_text("bibdatamanagement", path_to_find, encoding='utf-8-sig')
     else:
-        pckg_dir = importlib.resources.files("bibdata_management")
+        pckg_dir = importlib.resources.files("bibdatamanagement")
         file_path = search_file(pckg_dir, path_to_find)
         if file_path is not None:
-            content = importlib.resources.read_text("bibdata_management", file_path)
+            content = importlib.resources.read_text("bibdatamanagement", file_path)
         else:
             return print(f"File '{path_to_find}' not found in the package.")
 
