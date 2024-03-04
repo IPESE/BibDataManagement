@@ -145,8 +145,8 @@ class RBibData:
     def display_bibdata(self, header, selection):
         # TODO: When launching the model or saving the data, do something so that if the number of value that the model
         # can take is more than one, compute the mean 
-        arguments = ['technology_name', 'short_name', 'value', 'unit', 'comment', 'description', 'cite_key']
-        bibdata_columns = ['technology_name', 'short_name', 'value', 'unit', 'comment', 'description', 'sets',
+        arguments = ['entry', 'short_name', 'value', 'unit', 'comment', 'description', 'cite_key']
+        bibdata_columns = ['entry', 'short_name', 'value', 'unit', 'comment', 'description', 'sets',
                            'cite_key']
         print_columns = ['Technology', 'Parameter', 'Value', 'Unit', 'Comment', 'Description', 'Set', 'Reference']
         translate_col = dict(zip(bibdata_columns, print_columns))
@@ -160,7 +160,7 @@ class RBibData:
             arguments = []
             for chars in display_options:
                 if chars == "t":
-                    arguments.append("technology_name")
+                    arguments.append("entry")
                 if chars == "n":
                     arguments.append("short_name")
                 elif chars == "v":
@@ -211,7 +211,7 @@ class RBibData:
         if 'description' in arguments:
             arguments.remove('description')
             
-        df = df.sort_index(level=['technology_name', 'technology_key'])
+        df = df.sort_index(level=['entry', 'entry_key'])
         df = df.loc[:, arguments].rename(columns=translate_col).fillna(" ")
 
         return df, footnote
@@ -257,7 +257,7 @@ class RBibData:
         
         functionality = elements[0]
         df = self.__bibdata.get_data()
-        valid_technologies = [tech.lower() for tech in df['technology_name'].unique()]
+        valid_technologies = [tech.lower() for tech in df['entry'].unique()]
         valid_sets = [set for set in list(set(df['sets'])) if set != '']
 
         selection = {'tech': {'name': [], 'parameters': []}, 'sets': []}
