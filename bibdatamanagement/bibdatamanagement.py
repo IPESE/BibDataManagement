@@ -582,7 +582,7 @@ class BibDataManagement:
                 notes_txt = bib_data.entries[el].fields['note']
             else:
                 continue
-            n = re.findall("\+- (.*?) \+-", notes_txt)
+            n = re.findall("\+-(.*?)\+-", notes_txt)
             n = [re.sub(r'(\\)(\\\\)*(?!par|n|\\)', '', note) for note in n]
             if n:
                 notes = []
