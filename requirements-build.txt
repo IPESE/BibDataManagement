@@ -3,3 +3,4 @@ pandas >= 1.4
 plotly
 build
 twine
+pylatexenc == 2.10

@@ -52,7 +52,7 @@ class BibDataManagementES(BibDataManagement):
                 notes_txt = bib_data.entries[el].fields['note']
             else:
                 continue
-            n = re.findall("\+-(.*?)\+-", notes_txt)
+            n = re.findall("\+- (.*?) \+-", notes_txt)
             n = [re.sub(r'(\\)(\\\\)*(?!par|n|\\)', '', note) for note in n]
             if n:
                 notes = []
@@ -76,7 +76,7 @@ class BibDataManagementES(BibDataManagement):
                         continue
 
                     # Set paper fields
-                    bib_element = ['title', 'year', 'month', 'abstract', 'annotation', 'file', 'doi', 'journal']
+                    bib_element = ['title', 'year', 'month', 'abstract', 'annotation', 'file', 'doi', 'journal', 'howpublished']
                     for bib_elem in bib_element:
                         if bib_elem in bib_data.entries[el].fields._keys.keys():
                             tech[bib_elem] = bib_data.entries[el].fields[bib_elem]

@@ -17,11 +17,13 @@ del _hard_dependencies, _dependency, _missing_dependencies
 from bibdatamanagement.bibdatamanagement import BibDataManagement
 from bibdatamanagement.user_interface import RBibData
 from bibdatamanagement.utilities import get_file
+from bibdatamanagement.md_display import MdDisplay
 
 __all__ = [
     "BibDataManagement",
     "RBibData",
-    "get_file"
+    "get_file",
+    "MdDisplay"
 ]
 
 __doc__ = """
