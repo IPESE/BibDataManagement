@@ -132,10 +132,10 @@ class BibDataManagementES(BibDataManagement):
         ref_year = None
         if "%" in data:
             parameters = data.split("%")
-            category = parameters[0]
+            category = parameters[0].lower()
             parameters = parameters[1]
         else:
-            category = 'Technology'
+            category = 'technology'
             parameters = data
         parameters = parameters.split("#")
         name = parameters[0].strip()
