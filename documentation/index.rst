@@ -107,7 +107,7 @@ Again, spaces are for readility and special characters can be added without hind
 
   .. code-block:: r
 
-      +- Demand % SECTOR # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
+      +- DEMAND % SECTOR # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
       end_use_category1 = min:value1:max [unit1] # short_name: a comment about the param and its value
       end_use_category2 = value2 [unit2] # # confidence = 0.4
       +- /SECTOR
@@ -117,7 +117,7 @@ Again, spaces are for readility and special characters can be added without hind
 
   .. code-block:: r
 
-      +- Demand % INDUSTRY
+      +- DEMAND % INDUSTRY
       ELECTRICITY_MV = 30 [GWh]
       HEAT_HIGH_T = 60 [GWh]
       +- /INDUSTRY
@@ -126,7 +126,7 @@ Again, spaces are for readility and special characters can be added without hind
 
   .. code-block:: r
 
-      +- RESOURCE # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
+      +- RESOURCE % RESOURCE # row_key:set: general description of tech # confidence = 0.4 # ref_year = 1975
       param1 = min:value1:max [unit1] # short_name: a comment about the param and its value
       param2 = value2 [unit2] # # confidence = 0.4
       +- /RESOURCE
@@ -136,7 +136,7 @@ Again, spaces are for readility and special characters can be added without hind
 
   .. code-block:: r
 
-      +- BIOGAS
+      +- RESOURCE % BIOGAS
       c_op = 20 [USD/GWh]
       +-/BIOGAS
 
