@@ -215,4 +215,4 @@ class BibDataManagementES(BibDataManagement):
 
     @staticmethod
     def filter_by_category(df, cat_name):
-        return BibDataManagementES.filter_by(df, 'category', cat_name)
+        return BibDataManagementES.filter_by(df, 'category', cat_name.lower())
