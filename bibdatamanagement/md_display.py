@@ -45,7 +45,7 @@ class MdDisplay:
             return item
 
     @staticmethod
-    def print_md_params(bib_file_path, filter_entry):
+    def print_md_params(bib_file_path, filter_entry, category_entry=None):
         """
         Loads BibTeX data from file, filters it based on an entry, converts LaTeX fields to text,
         and returns a Markdown formatted dataframe with the parameters.
@@ -64,7 +64,10 @@ class MdDisplay:
         """
         # Load BibTeX data from file
         bibdata = BibDataManagementES(bib_file_path)
-        df_bib = bibdata.get_data(entry="", category_name="")
+        if not category_entry:
+            df_bib = bibdata.get_data(entry="", category_name="")
+        else:
+            df_bib = bibdata.get_data(entry="", category_name=category_entry)
 
         # Filter the DataFrame for specific entry
         df_filtered = df_bib[df_bib["entry"] == filter_entry].reset_index(drop=True)
