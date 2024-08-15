@@ -1,5 +1,8 @@
 from pylatexenc.latex2text import LatexNodes2Text
 from .bibdatamanagement_es import BibDataManagementES  # Adjust import based on actual package structure
+from typing import Union, List
+from os import PathLike
+import pandas as pd
 
 
 class MdDisplay:
@@ -45,7 +48,7 @@ class MdDisplay:
             return item
 
     @staticmethod
-    def print_md_params(bib_file_path, filter_entry, category_entry=None):
+    def print_md_params(bib_file_path: Union[str, PathLike], filter_entry: str = None, sets_filter: List[str] = [], category_entry: List[str] = []):
         """
         Loads BibTeX data from file, filters it based on an entry, converts LaTeX fields to text,
         and returns a Markdown formatted dataframe with the parameters.
@@ -54,20 +57,29 @@ class MdDisplay:
         ----------
         bib_file_path : str
             The file path to the BibTeX file.
-        filter_entry : str
-            The entry to filter the BibTeX data by.
+        filter_entry : list
+            A string of the entry to filter the BibTeX data by.
+        set_filter : list, optional
+            A list of filters to apply on the 'sets' column (default is an empty list).
+        category_entry : list, optional
+            A list of categories to filter the BibTeX data by (default is an empty list).
 
         Returns
         -------
         str
             A Markdown formatted dataframe with the parameters.
         """
+
         # Load BibTeX data from file
         bibdata = BibDataManagementES(bib_file_path)
+        df_bib = pd.DataFrame()
+
         if not category_entry:
             df_bib = bibdata.get_data(entry="", category_name="")
         else:
-            df_bib = bibdata.get_data(entry="", category_name=category_entry)
+            for category in category_entry:
+                # Concatenate data for each category
+                df_bib = pd.concat([df_bib, bibdata.get_data(entry="", category_name=category)], ignore_index=True)
 
         # Filter the DataFrame for specific entry
         df_filtered = df_bib[df_bib["entry"] == filter_entry].reset_index(drop=True)
@@ -87,6 +99,11 @@ class MdDisplay:
 
         # Prepare DataFrame for display
         df_display = df_filtered[["entry_key", "value", "unit", "sets", "source_reference"]]
+
+        if sets_filter:
+            sets_filter.extend(["", " "])
+            df_display = df_display[df_display["sets"].isin(sets_filter)]
+
         df_display = df_display.sort_values(["entry_key", "value"]).reset_index(drop=True).set_index("entry_key")
 
         # Return DataFrame as Markdown
