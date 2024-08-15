@@ -1,5 +1,5 @@
 from pylatexenc.latex2text import LatexNodes2Text
-from .bibdatamanagement_es import BibDataManagementES  # Adjust import based on actual package structure
+from .bibdatamanagement_es import BibDataManagementES
 from typing import Union, List
 from os import PathLike
 import pandas as pd
@@ -14,7 +14,7 @@ class MdDisplay:
     -------
     latex_to_text(item):
         Converts LaTeX formatted strings or lists of strings to plain text.
-    
+
     print_md_params(bib_file_path, filter_entry):
         Loads BibTeX data, filters it based on an entry, converts LaTeX fields to text,
         and returns a Markdown formatted dataframe with the parameters.
@@ -91,9 +91,9 @@ class MdDisplay:
 
         # Create the 'source_reference' column
         df_filtered["source_reference"] = df_filtered.apply(
-            lambda row: f"{'; '.join(row['author'])}, ({row['year']}): \"[{row['title']}]({row['howpublished']})\"" 
-            if row['howpublished'].strip() 
-            else f"{'; '.join(row['author'])}, ({row['year']}): \"{row['title']}\"", 
+            lambda row: f"{'; '.join(row['author'])}, ({row['year']}): \"[{row['title']}]({row['howpublished']})\""
+            if row['howpublished'].strip()
+            else f"{'; '.join(row['author'])}, ({row['year']}): \"{row['title']}\"",
             axis=1
         )
 
